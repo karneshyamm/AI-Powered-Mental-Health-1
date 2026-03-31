@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext';
 import { auth, db } from '../firebase';
-import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { Plus, BookOpen, Calendar, Loader2 } from 'lucide-react';
+import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp, deleteDoc, doc } from 'firebase/firestore';
+import { Plus, BookOpen, Calendar, Loader2, Trash2 } from 'lucide-react';
 import { useTheme } from '../ThemeContext';
 
 interface JournalEntry {
@@ -127,6 +127,15 @@ const Journal = () => {
     }
   };
 
+  const handleDelete = async (id: string) => {
+    const path = 'journals';
+    try {
+      await deleteDoc(doc(db, path, id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
+    }
+  };
+
   const moods = ['Happy', 'Calm', 'Neutral', 'Sad', 'Anxious', 'Angry'];
 
   return (
@@ -229,9 +238,18 @@ const Journal = () => {
                       year: 'numeric' 
                     })}
                   </div>
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${isDarkMode ? 'bg-white/5 text-slate-400' : 'bg-[#5A5A40]/10 text-[#5A5A40]'}`}>
-                    {entry.mood}
-                  </span>
+                  <div className="flex items-center gap-3">
+                    <span className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${isDarkMode ? 'bg-white/5 text-slate-400' : 'bg-[#5A5A40]/10 text-[#5A5A40]'}`}>
+                      {entry.mood}
+                    </span>
+                    <button
+                      onClick={() => handleDelete(entry.id)}
+                      className={`p-2 rounded-full transition-all ${isDarkMode ? 'text-slate-500 hover:bg-white/5 hover:text-red-400' : 'text-[#5A5A40]/30 hover:bg-red-50 hover:text-red-500'}`}
+                      title="Delete entry"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  </div>
                 </div>
                 <p className={`leading-relaxed whitespace-pre-wrap ${isDarkMode ? 'text-slate-300' : 'text-[#5A5A40]'}`}>
                   {entry.content}

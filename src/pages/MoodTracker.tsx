@@ -3,8 +3,8 @@ import { motion } from 'motion/react';
 import { useAuth } from '../AuthContext';
 import { useTheme } from '../ThemeContext';
 import { db, auth } from '../firebase';
-import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp } from 'firebase/firestore';
-import { Smile, Meh, Frown, Plus, Calendar, Loader2, MessageSquare } from 'lucide-react';
+import { collection, addDoc, query, where, orderBy, onSnapshot, Timestamp, deleteDoc, doc } from 'firebase/firestore';
+import { Smile, Meh, Frown, Plus, Calendar, Loader2, MessageSquare, Trash2 } from 'lucide-react';
 
 interface MoodEntry {
   id: string;
@@ -72,6 +72,7 @@ const MoodTracker = () => {
   const [note, setNote] = useState('');
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
+  const [indexError, setIndexError] = useState<string | null>(null);
 
   const moods = [
     { label: 'Happy', icon: <Smile className="text-green-500" />, color: isDarkMode ? 'bg-green-500/10' : 'bg-green-50' },
@@ -99,8 +100,14 @@ const MoodTracker = () => {
       })) as MoodEntry[];
       setEntries(docs);
       setLoading(false);
-    }, (error) => {
-      handleFirestoreError(error, OperationType.GET, path);
+    }, (error: any) => {
+      if (error.message?.includes('requires an index')) {
+        const match = error.message.match(/https:\/\/console\.firebase\.google\.com[^\s]*/);
+        setIndexError(match ? match[0] : 'Index required');
+        setLoading(false);
+      } else {
+        handleFirestoreError(error, OperationType.GET, path);
+      }
     });
 
     return unsubscribe;
@@ -125,6 +132,15 @@ const MoodTracker = () => {
       handleFirestoreError(err, OperationType.WRITE, path);
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    const path = 'moods';
+    try {
+      await deleteDoc(doc(db, path, id));
+    } catch (err) {
+      handleFirestoreError(err, OperationType.DELETE, path);
     }
   };
 
@@ -182,7 +198,27 @@ const MoodTracker = () => {
 
       <section className="space-y-6">
         <h2 className={`text-2xl font-serif ${isDarkMode ? 'text-white' : 'text-[#5A5A40]'}`}>History</h2>
-        {loading ? (
+        
+        {indexError ? (
+          <div className={`p-8 border rounded-[2rem] ${isDarkMode ? 'bg-amber-900/20 border-amber-900/30 text-amber-200' : 'bg-amber-50 border-amber-200 text-amber-800'}`}>
+            <h3 className="font-bold mb-2 text-lg">Database Index Required</h3>
+            <p className="mb-4 text-sm opacity-90">
+              To sort your mood history by date, a Firestore index needs to be created. 
+              This is a one-time setup step.
+            </p>
+            <a 
+              href={indexError} 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-block bg-amber-600 text-white px-6 py-2 rounded-xl text-sm font-bold hover:bg-amber-700 transition-all"
+            >
+              Click here to create the index
+            </a>
+            <p className="mt-4 text-xs opacity-60 italic">
+              After clicking, wait about 2-3 minutes for Firebase to build the index, then refresh this page.
+            </p>
+          </div>
+        ) : loading ? (
           <div className="flex justify-center py-10">
             <Loader2 className={`animate-spin ${isDarkMode ? 'text-indigo-400' : 'text-[#5A5A40]'}`} />
           </div>
@@ -207,10 +243,19 @@ const MoodTracker = () => {
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#5A5A40]'}`}>{entry.mood}</h3>
-                      <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-[#5A5A40]/40'}`}>
-                        {entry.createdAt?.toDate().toLocaleDateString()} {entry.createdAt?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                      </span>
+                      <div className="flex items-center gap-3">
+                        <h3 className={`font-bold ${isDarkMode ? 'text-white' : 'text-[#5A5A40]'}`}>{entry.mood}</h3>
+                        <span className={`text-[10px] font-bold uppercase tracking-widest ${isDarkMode ? 'text-slate-500' : 'text-[#5A5A40]/40'}`}>
+                          {entry.createdAt?.toDate().toLocaleDateString()} {entry.createdAt?.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      <button
+                        onClick={() => handleDelete(entry.id)}
+                        className={`p-2 rounded-full transition-all ${isDarkMode ? 'text-slate-500 hover:bg-white/5 hover:text-red-400' : 'text-[#5A5A40]/30 hover:bg-red-50 hover:text-red-500'}`}
+                        title="Delete entry"
+                      >
+                        <Trash2 size={14} />
+                      </button>
                     </div>
                     {entry.note && (
                       <p className={`text-sm flex items-start gap-2 ${isDarkMode ? 'text-slate-400' : 'text-[#5A5A40]/70'}`}>

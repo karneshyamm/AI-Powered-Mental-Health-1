@@ -86,6 +86,7 @@ const SignupPage = () => {
           name,
           age: parseInt(age),
           email,
+          role: 'user',
           createdAt: new Date().toISOString()
         });
       } catch (err) {
