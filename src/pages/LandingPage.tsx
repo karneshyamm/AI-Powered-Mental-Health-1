@@ -25,7 +25,7 @@ const LandingPage = () => {
             <div className={`w-10 h-10 rounded-full flex items-center justify-center shadow-sm shrink-0 ${isDarkMode ? 'bg-white text-black' : 'bg-black text-white'}`}>
               <Brain size={20} />
             </div>
-            <span className={`text-2xl font-serif font-bold tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>AI Therapy Companion</span>
+            <span className={`text-2xl font-serif font-bold tracking-tight leading-none ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Serenity</span>
           </div>
           <div className="flex items-center gap-10 text-sm font-bold uppercase tracking-widest leading-none">
             <Link to="/help" className={`hover:opacity-70 transition-opacity ${isDarkMode ? 'text-slate-300' : 'text-slate-600'}`}>Help</Link>
@@ -210,7 +210,7 @@ const LandingPage = () => {
           </div>
           <div className="grid md:grid-cols-3 gap-8">
             {[
-              { name: "Sarah J.", role: "Marketing Executive", text: "I was skeptical about AI therapy, but AI Therapy Companion has become my go-to for daily stress management. It's like having a wise friend in my pocket." },
+              { name: "Sarah J.", role: "Marketing Executive", text: "I was skeptical about AI therapy, but Serenity has become my go-to for daily stress management. It's like having a wise friend in my pocket." },
               { name: "Michael R.", role: "Student", text: "The panic support feature literally saved me during finals week. The breathing exercises and immediate response helped me stay grounded." },
               { name: "Elena K.", role: "New Parent", text: "Finding time for myself is hard. Being able to chat for 5 minutes at 2 AM when I'm feeling overwhelmed has made a huge difference." }
             ].map((story, i) => (
@@ -249,7 +249,7 @@ const LandingPage = () => {
               <span className="italic font-light text-[#5A5A40]">your calm?</span>
             </h2>
             <p className={`text-2xl md:text-3xl max-w-3xl mx-auto font-light mb-16 ${isDarkMode ? 'text-slate-400' : 'text-slate-600'}`}>
-              Join thousands of others who are taking control of their mental well-being with AI Therapy Companion.
+              Join thousands of others who are taking control of their mental well-being with Serenity.
             </p>
             <Link to="/signup" className="group relative inline-flex items-center gap-4 bg-[#5A5A40] text-white px-16 py-8 rounded-full text-3xl font-medium hover:scale-105 transition-transform overflow-hidden shadow-2xl shadow-[#5A5A40]/30">
               <div className="absolute inset-0 bg-gradient-to-r from-[#5A5A40] to-[#4a4a34] opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -268,7 +268,7 @@ const LandingPage = () => {
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDarkMode ? 'bg-white text-black' : 'bg-black text-white'}`}>
                 <Brain size={20} />
               </div>
-              <span className={`text-2xl font-serif font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>AI Therapy Companion</span>
+              <span className={`text-2xl font-serif font-bold ${isDarkMode ? 'text-white' : 'text-slate-900'}`}>Serenity</span>
             </div>
             <p className={`text-lg leading-relaxed max-w-sm ${isDarkMode ? 'text-slate-400' : 'text-slate-500'}`}>
               Your companion for mental well-being. Providing support, one conversation at a time. Empowering you to find peace in the digital age.
@@ -309,9 +309,9 @@ const LandingPage = () => {
           </div>
         </div>
         <div className="max-w-7xl mx-auto mt-24 pt-10 border-t border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-          <p className="text-sm font-medium text-slate-400">© 2026 AI Therapy Companion. Created by Shyam Sundhr Karne. All rights reserved.</p>
+          <p className="text-sm font-medium text-slate-400">© 2026 Serenity. Created by Shyam Sundhr Karne. All rights reserved.</p>
           <div className="flex items-center gap-8">
-            <span className="text-sm font-bold italic text-slate-300 tracking-tighter">Companion</span>
+            <span className="text-sm font-bold italic text-slate-300 tracking-tighter">Serenity</span>
             <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-sm font-bold uppercase tracking-widest hover:text-[#5A5A40] transition-colors flex items-center gap-2 text-slate-400">
               Back to top <ArrowRight className="-rotate-90" size={16} />
             </button>

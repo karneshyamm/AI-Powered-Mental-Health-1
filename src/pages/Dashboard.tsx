@@ -33,7 +33,7 @@ const Dashboard = () => {
       color: isDarkMode ? 'bg-emerald-500/20 text-emerald-400' : 'bg-green-50 text-green-600'
     },
     {
-      title: 'AI Companion',
+      title: 'Serenity AI',
       desc: 'Talk to Serenity AI for immediate support.',
       icon: <MessageSquare size={24} />,
       path: '/chat',

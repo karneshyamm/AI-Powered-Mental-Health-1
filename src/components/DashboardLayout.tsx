@@ -57,7 +57,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${isDarkMode ? 'bg-indigo-500' : 'bg-[#5A5A40]'}`}>
             <Brain size={16} />
           </div>
-          <span className={`text-xl font-serif font-bold ${isDarkMode ? 'text-indigo-400' : 'text-[#5A5A40]'}`}>AI Therapy Companion</span>
+          <span className={`text-xl font-serif font-bold ${isDarkMode ? 'text-indigo-400' : 'text-[#5A5A40]'}`}>Serenity</span>
         </div>
 
         <nav className="flex-1 space-y-2">
@@ -103,7 +103,7 @@ const DashboardLayout: React.FC<{ children: React.ReactNode }> = ({ children }) 
           <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white ${isDarkMode ? 'bg-indigo-500' : 'bg-[#5A5A40]'}`}>
             <Brain size={16} />
           </div>
-          <span className={`text-xl font-serif font-bold ${isDarkMode ? 'text-indigo-400' : 'text-[#5A5A40]'}`}>AI Therapy Companion</span>
+          <span className={`text-xl font-serif font-bold ${isDarkMode ? 'text-indigo-400' : 'text-[#5A5A40]'}`}>Serenity</span>
         </div>
         <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className={isDarkMode ? 'text-slate-200' : 'text-[#5A5A40]'}>
           {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
