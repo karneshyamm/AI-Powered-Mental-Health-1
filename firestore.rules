@@ -1,0 +1,119 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: users
+    // Document ID: {userId} (matches Firebase Auth UID)
+    // Fields:
+    //   - name: string (required, 1-100 chars)
+    //   - age: number (required, >= 0)
+    //   - email: string (required, email format)
+    //   - createdAt: string (required, ISO 8601)
+    //
+    // Collection: journals
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required, matches owner UID)
+    //   - content: string (required, 1-5000 chars)
+    //   - mood: string (required, enum: Happy, Calm, Neutral, Sad, Anxious, Angry)
+    //   - createdAt: timestamp (required)
+    //
+    // Collection: moods
+    // Document ID: auto-generated
+    // Fields:
+    //   - userId: string (required, matches owner UID)
+    //   - mood: string (required, enum: Happy, Calm, Neutral, Sad, Anxious, Angry)
+    //   - note: string (optional, 0-1000 chars)
+    //   - createdAt: timestamp (required)
+    //
+    // ===============================================================
+
+    // ===============================================================
+    // Helper Functions
+    // ===============================================================
+    
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidEmail(email) {
+      return email is string && email.matches("^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$");
+    }
+
+    function isValidDateString(dateStr) {
+      return dateStr is string && dateStr.matches("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}.*Z?$");
+    }
+
+    // ===============================================================
+    // Domain Validators
+    // ===============================================================
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'age', 'email', 'createdAt']) &&
+             data.keys().hasOnly(['name', 'age', 'email', 'createdAt']) &&
+             data.name is string && data.name.size() > 0 && data.name.size() <= 100 &&
+             data.age is number && data.age >= 0 &&
+             isValidEmail(data.email) &&
+             isValidDateString(data.createdAt);
+    }
+
+    function isValidJournal(data) {
+      let validMoods = ['Happy', 'Calm', 'Neutral', 'Sad', 'Anxious', 'Angry'];
+      return data.keys().hasAll(['userId', 'content', 'mood', 'createdAt']) &&
+             data.keys().hasOnly(['userId', 'content', 'mood', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.content is string && data.content.size() > 0 && data.content.size() <= 5000 &&
+             data.mood in validMoods &&
+             data.createdAt is timestamp;
+    }
+
+    function isValidMood(data) {
+      let validMoods = ['Happy', 'Calm', 'Neutral', 'Sad', 'Anxious', 'Angry'];
+      return data.keys().hasAll(['userId', 'mood', 'createdAt']) &&
+             data.keys().hasOnly(['userId', 'mood', 'note', 'createdAt']) &&
+             data.userId == request.auth.uid &&
+             data.mood in validMoods &&
+             (!('note' in data) || (data.note is string && data.note.size() <= 1000)) &&
+             data.createdAt is timestamp;
+    }
+
+    // ===============================================================
+    // Rules
+    // ===============================================================
+
+    match /users/{userId} {
+      allow read: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data) && 
+                      request.resource.data.email == resource.data.email &&
+                      request.resource.data.createdAt == resource.data.createdAt;
+    }
+
+    match /journals/{entryId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && isValidJournal(request.resource.data);
+      allow update: if false; // Journal entries are immutable in this app version
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    match /moods/{moodId} {
+      allow read: if isAuthenticated() && resource.data.userId == request.auth.uid;
+      allow create: if isAuthenticated() && isValidMood(request.resource.data);
+      allow update: if false;
+      allow delete: if isAuthenticated() && resource.data.userId == request.auth.uid;
+    }
+
+    // Default deny
+    match /{path=**} {
+      allow read, write: if false;
+    }
+  }
+}
